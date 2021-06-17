@@ -32,7 +32,7 @@ signal s_txt1 : std_logic_vector(44 downto 0) := "111110101110000110101000110010
 signal hi, lo, middle : integer;
 signal n_att : unsigned(6 downto 0) := "0000000";
 signal s_done : unsigned(1 downto 0) := "00";
-signal s_res : unsigned(1 downto 0);
+signal s_res : unsigned(1 downto 0) := "00";
 signal s_leds : std_logic_vector(17 downto 0) := "000000000000000000";
 
 begin
@@ -50,6 +50,9 @@ end process;
 
 process(PS, keys, clk)
 begin
+
+txt <= (others => '1');
+ledr <= (others => '0');
 
 case PS is
 
@@ -104,6 +107,8 @@ when guess =>
 		
 		enable  <= "111";
 		
+		s_done <= "00";
+		
 		if(lo > hi) then
 			NS <= cheater;
 		end if;
@@ -133,6 +138,8 @@ when guess =>
 		if(s_done = "11") then
 			s_done <= "00";
 			NS <= listen;
+		else
+			NS <= guess;
 		end if;
 		
 when listen =>
@@ -140,6 +147,10 @@ when listen =>
 	enable  <= "111";
 	
 	selector <= '0';
+	
+	NS <= listen;
+	
+	txt <= (others => '1');
 	
 	case s_res is
 	when "00" =>
@@ -181,14 +192,16 @@ when listen =>
 	end if;
 	
 	when others=>
+	txt <= (others => '1');
 	s_res <= "00";
+	NS <= listen;
 	end case;
 		
 when cheater =>
 	
 	selector <= '1';
 	
-	txt <= "1111110011101000110110101101100110110000";
+	txt <= "1111110011101000110110101101100110110000"; -- CHEAtEr
 	
 	enable  <= (others => c4hz);
 	
@@ -199,10 +212,12 @@ when cheater =>
 	end if;
 	
 when win =>
-
+	
 	selector <= '0';
 	
 	enable  <= (others => c2hz);
+	
+	txt <= (others => '1');
 	
 	if(rising_edge(c8hz)) then
 		s_leds <= rnd(17 downto 0);
@@ -210,7 +225,14 @@ when win =>
 	
 	ledr <= s_leds(17 downto 0);
 	
+	if(keys(3) = '1') then
+		NS <= waiting;
+	else
+		NS <= win;
+	end if;
+	
 when others =>
+txt <= (others => '1');
 NS <= start;
 
 end case;
