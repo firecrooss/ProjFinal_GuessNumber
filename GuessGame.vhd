@@ -28,6 +28,14 @@ signal s_d7, s_d6, s_d5, s_d4 : std_logic_vector(3 downto 0);
 signal s_bin7, s_bin6, s_bin5, s_bin4, s_bin3, s_bin2, s_bin1, s_bin0 : std_logic_vector(4 downto 0);
 signal s_enable7, s_enable6, s_enable5, s_enable4, s_enable3, s_enable2, s_enable1, s_enable0 : std_logic;
 signal s_count10 : std_logic;
+signal s_countatt, s_gameover : std_logic;
+signal s_att : std_logic_vector(6 downto 0);
+
+signal s_hiIn, s_hiOut, s_loIn, s_loOut : std_logic_vector(6 downto 0);
+signal s_regEnable : std_logic;
+signal s_middle : std_logic_vector(6 downto 0);
+signal s_result : std_logic_vector(1 downto 0);
+signal s_calcEnable, s_calcReset, s_cheater : std_logic;
 
 signal s_sw : std_logic_vector(1 downto 0);
 signal s_key : std_logic_vector(3 downto 0);
@@ -181,6 +189,21 @@ dec8 : entity work.decoder(Behavioral)
 					enable => s_enable0,
 					hex => HEX0);
 					
+countatt : entity work.CounterUpN(Behavioral)
+		generic map(N => 99)
+		port map(clk => s_countatt,
+					reset => s_gameover,
+					count => s_att);
+	
+
+attcalc : entity work.attemptcalc(Behavioral)
+		port map(clk => CLOCK_50,
+					enable => s_calcEnable,
+					reset => s_calcReset,
+					dataIn => s_result,
+					attempt => s_middle,
+					cheater => s_cheater);
+					
 					
 					
 gn : entity work.guess_number(Behavioral)
@@ -201,7 +224,17 @@ gn : entity work.guess_number(Behavioral)
 					activate => s_activate,
 					selector => s_selector,
 					enable => s_enable,
-					txt => s_txt);
+					txt => s_txt,
+					
+					middle => s_middle,
+					calcReset => s_calcReset,
+					calcEnable => s_calcEnable,
+					calcRes => s_result,
+					calcCheater => s_cheater,
+					
+					gameover => s_gameover,
+					countatt => s_countatt,
+					att => s_att);
 					
 
 end Structural;

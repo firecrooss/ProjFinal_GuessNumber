@@ -13,6 +13,7 @@ architecture Behavioral of decoder is
 	begin
 		if(enable = '1') then
 				case bin is
+					when "00000" => hex <= "1000000"; --0
 					when "00001" => hex <= "1111001"; --1
 					when "00010" => hex <= "0100100"; --2
 					when "00011" => hex <= "0110000"; --3
@@ -22,7 +23,7 @@ architecture Behavioral of decoder is
 					when "00111" => hex <= "1111000"; --7
 					when "01000" => hex <= "0000000"; --8
 					when "01001" => hex <= "0010000"; --9
-					when "01010" => hex <= "1000000"; --0
+					when "01010" => hex <= "1000000"; --O
 					when "01011" => hex <= "0000010"; --G
 					when "01100" => hex <= "0111110"; --U
 					when "01101" => hex <= "0000110"; --E

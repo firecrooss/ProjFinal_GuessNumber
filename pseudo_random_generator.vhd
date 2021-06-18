@@ -23,8 +23,8 @@ use     IEEE.NUMERIC_STD.ALL;
 entity pseudo_random_generator is
   generic
   (
-    N_BITS : integer range 1 to 24;        -- number of pseudo-random output bits
-    SEED   : std_logic_vector(47 downto 0) -- initial state of the generator
+    N_BITS : integer range 1 to 24 := 18;        -- number of pseudo-random output bits
+    SEED   : std_logic_vector(47 downto 0) := "011011101001011011011010011011101001011011011010" -- initial state of the generator
   );
   port
   (

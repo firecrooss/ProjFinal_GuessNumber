@@ -24,7 +24,7 @@ use     IEEE.NUMERIC_STD.ALL;
 entity debouncer is
   generic
   (
-    CLOCK_FREQUENCY : real range 1.0e6 to 250.0e6;           -- (in Hz) frequency of the clock signal
+    CLOCK_FREQUENCY : real range 1.0e6 to 250.0e6 := Real(50e6);           -- (in Hz) frequency of the clock signal
     WINDOW_DURATION : real range 0.0 to 100.0e-3 := 20.0e-6; -- (in seconds) the input signal has to be stable during this time for the output signal to change
     DELAY_DURATION  : real range 0.0 to 100.0e-3 := 20.0e-3; -- (in seconds) the input signal is ignored for this time after an output signal change
     INITIAL_LEVEL   : std_logic                  := '0'      -- the initial state of the debouncer (use '0' for switches and '1' for keys)
