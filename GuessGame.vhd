@@ -198,9 +198,9 @@ countatt : entity work.CounterUpN(Behavioral)
 
 attcalc : entity work.attemptcalc(Behavioral)
 		port map(clk => CLOCK_50,
-					enable => s_calcEnable,
 					reset => s_calcReset,
-					dataIn => s_result,
+					random => s_rnd(6 downto 0),
+					result => s_result,
 					attempt => s_middle,
 					cheater => s_cheater);
 					
@@ -228,7 +228,6 @@ gn : entity work.guess_number(Behavioral)
 					
 					middle => s_middle,
 					calcReset => s_calcReset,
-					calcEnable => s_calcEnable,
 					calcRes => s_result,
 					calcCheater => s_cheater,
 					

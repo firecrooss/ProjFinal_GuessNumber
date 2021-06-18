@@ -22,7 +22,6 @@ entity guess_number is
 		  
 		  middle		 : in std_logic_vector(6 downto 0);	
 		  calcReset  : out std_logic;
-		  calcEnable : out std_logic;
 		  calcRes	 : out std_logic_vector(1 downto 0);
 		  calcCheater	 : in std_logic;
 		  
@@ -76,7 +75,7 @@ when start =>
 	ledr <= (others => c1hz);
 	enable  <= (others => c1hz);
 	
-	calcReset <= '1';
+	
 	
 	if(count10 = '1') then
 		NS <= waiting;
@@ -120,6 +119,8 @@ when waiting =>
 	
 when guess =>
 		
+		calcReset <= '0';
+		
 		calcRes <= "00";
 		
 		enable  <= "111";
@@ -128,19 +129,9 @@ when guess =>
 		
 		countatt <= '0';
 		
-		if(calcCheater = '1') then
-			NS <= cheater;
-		end if;
-		
 		selector <= '0';
 		
-		calcEnable <= '1';
-		
-		if(done1 = '1' and done2 = '1') then
-			s_attempt <= middle;
-		end if;
-		
-		attempt <= s_attempt;
+		attempt <= middle;
 		
 		n_attempts <= std_logic_vector(att);
 		
@@ -148,9 +139,15 @@ when guess =>
 		
 		activate <= '1';
 		
-		NS <= listenhi;
+		if(calcCheater = '1') then
+			NS <= cheater;
+		else
+			NS <= listenhi;
+		end if;
 		
 when listenhi =>
+
+	calcReset <= '0';
 
 	enable  <= "111";
 	
@@ -173,6 +170,8 @@ when listenhi =>
 	end if;
 
 when listenlo =>
+
+	calcReset <= '0';
 	
 	enable  <= "111";
 	
@@ -195,6 +194,8 @@ when listenlo =>
 	end if;
 	
 when listeneq=>
+
+	calcReset <= '0';
 		
 	enable  <= "111";
 	
