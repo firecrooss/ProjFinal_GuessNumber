@@ -26,13 +26,12 @@ end guess_number;
 
 architecture Behavioral of guess_number is
 
-type state is (start, waiting, guess, listen, cheater, win);
+type state is (start, waiting, guess, listenhi, listenlo, listeneq, cheater, win);
 signal PS, NS : state;
 signal s_txt1 : std_logic_vector(44 downto 0) := "111110101110000110101000110010111110101000100"; --GruPo 04
 signal hi, lo, middle : integer;
-signal n_att : unsigned(6 downto 0) := "0000000";
+signal n_att : unsigned(6 downto 0) := "0000001";
 signal s_done : unsigned(1 downto 0) := "00";
-signal s_res : unsigned(1 downto 0) := "00";
 signal s_leds : std_logic_vector(17 downto 0) := "000000000000000000";
 
 begin
@@ -60,10 +59,13 @@ when start =>
 
 	selector <= '1';
 
-	txt <= "0101101100011010111001110111110111100001"; --guess_n1
+	txt <= "0101111010011010111001110111110111100001"; --guess_n1
 	ledr <= (others => c1hz);
 	enable  <= (others => c1hz);
-
+	
+	hi <= 99;
+	lo <= 0;
+	
 	if(count10 = '1') then
 		NS <= waiting;
 	else
@@ -75,12 +77,7 @@ when waiting =>
 	enable  <= "111";
 	
 	selector <= '1';
-
-	if(keys(0) = '1') then
-		
-		NS <= guess;
-	else
-		
+	
 		if(rising_edge(c1hz)) then
 		
 		s_txt1(44 downto 40) <= s_txt1(39 downto 35);
@@ -99,6 +96,11 @@ when waiting =>
 		
 		hi <= 99;
 		lo <= 0;
+
+	if(keys(0) = '1') then
+		
+		NS <= guess;
+	else
 		
 		NS <= waiting;
 	end if;
@@ -107,19 +109,15 @@ when guess =>
 		
 		enable  <= "111";
 		
-		s_done <= "00";
-		
 		if(lo > hi) then
 			NS <= cheater;
 		end if;
 		
 		selector <= '0';
 		
-		middle <= (lo + hi + 1)/2;
+		middle <= 25;
 		
 		attempt <= std_logic_vector(to_unsigned(middle, 7));
-		
-		n_att <= n_att + 1;
 		
 		n_attempts <= std_logic_vector(n_att);
 		
@@ -127,75 +125,78 @@ when guess =>
 		
 		activate <= '1';
 		
-		if(done1 = '1') then
-			s_done(0) <= '1';
-		end if;
+--		if(done1 = '1') then
+--			s_done(0) <= '1';
+--		end if;
 		
-		if(done2 = '1') then
-			s_done(1) <= '1';
-		end if;
+--		if(done2 = '1') then
+--			s_done(1) <= '1';
+--		end if;
 		
-		if(s_done = "11") then
-			s_done <= "00";
-			NS <= listen;
-		else
-			NS <= guess;
-		end if;
+--		if(s_done = "11") then
+--			s_done <= "00";
+			NS <= listenhi;
+--		else
+--			NS <= guess;
+--		end if;
 		
-when listen =>
-	
+when listenhi =>
+
 	enable  <= "111";
 	
 	selector <= '0';
 	
-	NS <= listen;
+	NS <= listenhi;
 	
-	txt <= (others => '1');
-	
-	case s_res is
-	when "00" =>
-		
 	txt(19 downto 0) <= "11111101001011111111"; --Hi
 	
 	if(keys(1) = '1') then
-		s_res <= "01";
+		NS <= listenlo;
 	end if;
 	
 	if(keys(2) = '1') then
+		n_att <= n_att + 1;
 		hi <= middle-1;
 		NS <= guess;
 	end if;
-		
-	when "01"=>
+
+when listenlo =>
+
+	enable  <= "111";
+	
+	selector <= '0';
+	
+	NS <= listenlo;
 	
 	txt(19 downto 0) <= "11111110001001011111"; --Lo
 	
 	if(keys(1) = '1') then
-		s_res <= "10";
+		NS <= listeneq;
 	end if;
 	
 	if(keys(2) = '1') then
+		n_att <= n_att + 1;
 		lo <= middle+1;
 		NS <= guess;
 	end if;
 	
-	when "10"=>
+when listeneq=>
+		
+	enable  <= "111";
+	
+	selector <= '0';
+	
+	NS <= listeneq;
 	
 	txt(19 downto 0) <= "11111110011100111111"; --==
 	
 	if(keys(1) = '1') then
-		s_res <= "00";
+		NS <= listenhi;
 	end if;
 	
 	if(keys(2) = '1') then
 		NS <= win;
 	end if;
-	
-	when others=>
-	txt <= (others => '1');
-	s_res <= "00";
-	NS <= listen;
-	end case;
 		
 when cheater =>
 	
@@ -204,6 +205,9 @@ when cheater =>
 	txt <= "1111110011101000110110101101100110110000"; -- CHEAtEr
 	
 	enable  <= (others => c4hz);
+	
+	hi <= 99;
+	lo <= 0;
 	
 	if(keys(3) = '1') then
 		NS <= waiting;
@@ -219,6 +223,9 @@ when win =>
 	
 	txt <= (others => '1');
 	
+	hi <= 99;
+	lo <= 0;
+	
 	if(rising_edge(c8hz)) then
 		s_leds <= rnd(17 downto 0);
 	end if;
@@ -232,6 +239,8 @@ when win =>
 	end if;
 	
 when others =>
+hi <= 99;
+lo <= 0;
 txt <= (others => '1');
 NS <= start;
 
